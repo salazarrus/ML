@@ -35,7 +35,15 @@ Theta2_grad = zeros(size(Theta2));
 %         cost function computation is correct by verifying the cost
 %         computed in ex4.m
 
+bigDelta1 = zeros(size(Theta1));
+
+bigDelta2 = zeros(size(Theta2));
+
 for i=1:m,
+  
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %                 FORWARD-PROP                %   
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   x = X(i,:); %1x(input_layer_size)
   
   actualLabel = y(i,:); %scalar
@@ -47,19 +55,57 @@ for i=1:m,
 
   a1 = [1; x(:)]; % (input_layer_size+1)x1
   
-  a2 = sigmoid(Theta1 * a1); % (hidden_layer_size)x1
+  z1 = Theta1 * a1;
+  
+  a2 = sigmoid(z1); % (hidden_layer_size)x1
   
   a2 = [1; a2]; %(hidden_layer_size+1)x1
   
-  a3 = sigmoid(Theta2 * a2); % (num_labels)x 1
+  z2 = Theta2 * a2;
+  
+  a3 = sigmoid(z2); % (num_labels)x 1
   
   singleCost = -y_vect' * log(a3) - (1-y_vect')*log(1-a3);
   
   J = J + singleCost;
   
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %                  BACK-PROP                  %   
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+  delta3 = a3-y_vect; % num_labelsx1
+  
+  delta2 = Theta2' * (delta3 .* sigmoidGradient(z2)) ; %(hidden_layer_size+1)x1
+  
+  bigDelta2 = bigDelta2 + delta3(2:end) * (a2');
+  
+  bigDelta1 = bigDelta1 + delta2(2:end) * (a1');
+   
+  
 end;
 
 J = J/m;
+
+Theta2_grad = bigDelta2/m;
+  
+Theta1_grad = bigDelta1/m;
+
+theta2zeroColumn = Theta2;
+
+theta2zeroColumn(:,1) = zeros(num_labels,1);
+
+theta1zeroColumn = Theta1;
+
+theta1zeroColumn(:,1) = zeros(hidden_layer_size,1);
+
+
+
+Theta2_grad = Theta2_grad + (lambda/m)*theta2zeroColumn;
+
+Theta1_grad = Theta1_grad + (lambda/m)*theta1zeroColumn;
+
+
+
 
 regularization1 = sum(sum(Theta1(:, 2:end).^2));
  
