@@ -53,17 +53,15 @@ for i=1:m,
   
   y_vect(actualLabel) = 1;  
 
-  a1 = [1; x(:)]; % (input_layer_size+1)x1
+  a1 = x(:); % (input_layer_size)x1
   
-  z1 = Theta1 * a1;
+  z2 = Theta1 * [1; a1];
   
-  a2 = sigmoid(z1); % (hidden_layer_size)x1
+  a2 = sigmoid(z2); % (hidden_layer_size)x1
   
-  a2 = [1; a2]; %(hidden_layer_size+1)x1
-  
-  z2 = Theta2 * a2;
-  
-  a3 = sigmoid(z2); % (num_labels)x 1
+  z3 = Theta2 * [1; a2];
+    
+  a3 = sigmoid(z3); % (num_labels)x 1
   
   singleCost = -y_vect' * log(a3) - (1-y_vect')*log(1-a3);
   
@@ -75,11 +73,14 @@ for i=1:m,
   
   delta3 = a3-y_vect; % num_labelsx1
   
-  delta2 = Theta2' * (delta3 .* sigmoidGradient(z2)) ; %(hidden_layer_size+1)x1
+  delta2 = Theta2' * delta3;
+ 
+ 
+  delta2 = delta2 .* sigmoidGradient([1; z2]) ; %(hidden_layer_size+1)x1
   
-  bigDelta2 = bigDelta2 + delta3(2:end) * (a2');
+  bigDelta2 = bigDelta2 + delta3 * ([1;a2]');
   
-  bigDelta1 = bigDelta1 + delta2(2:end) * (a1');
+  bigDelta1 = bigDelta1 + delta2(2:end) * ([1;a1]');
    
   
 end;
