@@ -26,14 +26,6 @@ J = 0;
 Theta1_grad = zeros(size(Theta1));
 Theta2_grad = zeros(size(Theta2));
 
-% ====================== YOUR CODE HERE ======================
-% Instructions: You should complete the code by working through the
-%               following parts.
-%
-% Part 1: Feedforward the neural network and return the cost in the
-%         variable J. After implementing Part 1, you can verify that your
-%         cost function computation is correct by verifying the cost
-%         computed in ex4.m
 
 bigDelta1 = zeros(size(Theta1));
 
@@ -53,13 +45,15 @@ for i=1:m,
   
   y_vect(actualLabel) = 1;  
 
-  a1 = x(:); % (input_layer_size)x1
+  a1 = [1; x(:)]; % (input_layer_size)x1
   
-  z2 = Theta1 * [1; a1];
+  z2 = Theta1 * a1;
   
   a2 = sigmoid(z2); % (hidden_layer_size)x1
   
-  z3 = Theta2 * [1; a2];
+  a2 = [1; a2];
+  
+  z3 = Theta2 * a2;
     
   a3 = sigmoid(z3); % (num_labels)x 1
   
@@ -75,12 +69,14 @@ for i=1:m,
   
   delta2 = Theta2' * delta3;
  
+  %don't use bias for calculation
+  delta2 = delta2(2:end);
  
-  delta2 = delta2 .* sigmoidGradient([1; z2]) ; %(hidden_layer_size+1)x1
+  delta2 = delta2 .* sigmoidGradient(z2) ; %(hidden_layer_size+1)x1
   
-  bigDelta2 = bigDelta2 + delta3 * ([1;a2]');
+  bigDelta2 = bigDelta2 + delta3 * (a2');
   
-  bigDelta1 = bigDelta1 + delta2(2:end) * ([1;a1]');
+  bigDelta1 = bigDelta1 + delta2 * (a1');
    
   
 end;
@@ -91,13 +87,18 @@ Theta2_grad = bigDelta2/m;
   
 Theta1_grad = bigDelta1/m;
 
-theta2zeroColumn = Theta2;
 
-theta2zeroColumn(:,1) = zeros(num_labels,1);
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Derivative regularization%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
 theta1zeroColumn = Theta1;
 
 theta1zeroColumn(:,1) = zeros(hidden_layer_size,1);
+
+
+theta2zeroColumn = Theta2;
+
+theta2zeroColumn(:,1) = zeros(num_labels,1);
 
 
 
@@ -105,9 +106,9 @@ Theta2_grad = Theta2_grad + (lambda/m)*theta2zeroColumn;
 
 Theta1_grad = Theta1_grad + (lambda/m)*theta1zeroColumn;
 
-
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Cost function regularization%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 regularization1 = sum(sum(Theta1(:, 2:end).^2));
  
 regularization2 = sum(sum(Theta2(:, 2:end).^2)); 
@@ -115,32 +116,6 @@ regularization2 = sum(sum(Theta2(:, 2:end).^2));
 regularization = (lambda* (regularization1 + regularization2))/(2*m);
 
 J = J + regularization;
-%
-% Part 3: Implement regularization with the cost function and gradients.
-%
-%         Hint: You can implement this around the code for
-%               backpropagation. That is, you can compute the gradients for
-%               the regularization separately and then add them to Theta1_grad
-%               and Theta2_grad from Part 2.
-%
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 % -------------------------------------------------------------
 
