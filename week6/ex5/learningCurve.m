@@ -53,9 +53,28 @@ error_val   = zeros(m, 1);
 
 % ---------------------- Sample Solution ----------------------
 
+ for i = 1:m
+     XTrainSubset = X(1:i, :);
+     yTrainSubset = y(1:i);
+     
+     
+     thetaTrain = trainLinearReg(XTrainSubset, yTrainSubset, lambda);
+           
+          
+     costTrain = linearRegCostFunction(XTrainSubset, yTrainSubset, thetaTrain, 0);     
+         
+     
+     error_train(i) = costTrain(1);  
+    
+     error_val(i) = linearRegCostFunction(Xval, yval, thetaTrain, 0)(1);
+     %(1/(2*m)) * sum((Xval*thetaTrain-yval).^2);  
+     
+     
+     
+ end
 
-
-
+error_train;
+error_val;
 
 
 
