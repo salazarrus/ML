@@ -26,7 +26,11 @@ J= (1/(2*m)) * sum((X*theta-y).^2) + regularizationPart;
 
 grad = sum((X * theta - y).*X)/m;
 
+gradRegularizationPart = (lambda/m)*theta';
 
+gradRegularizationPart(1) = 0;
+
+grad = grad + gradRegularizationPart;
 % =========================================================================
 
 grad = grad(:);
